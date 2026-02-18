@@ -15,15 +15,20 @@ const ChatWindow = ({ itemId, itemName, onClose }) => {
     const messagesEndRef = useRef(null);
 
     useEffect(() => {
-      
+
         socketRef.current = io(SOCKET_URL, {
             withCredentials: true,
         });
-      
+
         socketRef.current.emit('join', {
             username: user.username,
             item_id: itemId
-        });     
+        });
+
+        socketRef.current.on('history', (history) => {
+            setMessages(history);
+        });
+
         socketRef.current.on('message', (message) => {
             setMessages((prev) => [...prev, message]);
         });
@@ -54,7 +59,7 @@ const ChatWindow = ({ itemId, itemName, onClose }) => {
 
     return (
         <div className="fixed bottom-4 right-4 w-80 md:w-96 bg-white rounded-lg shadow-2xl overflow-hidden border border-gray-200 z-50 flex flex-col h-[500px]">
-            {}
+            { }
             <div className="bg-brand p-4 flex justify-between items-center text-brand-foreground">
                 <div className="flex items-center">
                     <MessageCircle className="h-5 w-5 mr-2" />
@@ -68,7 +73,7 @@ const ChatWindow = ({ itemId, itemName, onClose }) => {
                 </button>
             </div>
 
-            {}
+            { }
             <div className="flex-1 p-4 overflow-y-auto bg-gray-50">
                 {messages.length === 0 ? (
                     <div className="text-center text-gray-500 mt-10">
@@ -86,8 +91,8 @@ const ChatWindow = ({ itemId, itemName, onClose }) => {
                                 >
                                     <div
                                         className={`max-w-[80%] px-4 py-2 rounded-lg text-sm ${isMe
-                                                ? 'bg-brand text-brand-foreground rounded-br-none'
-                                                : 'bg-white border border-gray-200 text-gray-800 rounded-bl-none shadow-sm'
+                                            ? 'bg-brand text-brand-foreground rounded-br-none'
+                                            : 'bg-white border border-gray-200 text-gray-800 rounded-bl-none shadow-sm'
                                             }`}
                                     >
                                         <p className="font-bold text-xs opacity-75 mb-1">{msg.user}</p>
@@ -104,7 +109,7 @@ const ChatWindow = ({ itemId, itemName, onClose }) => {
                 )}
             </div>
 
-            {}
+            { }
             <form onSubmit={handleSendMessage} className="p-3 bg-white border-t border-gray-200">
                 <div className="flex items-center space-x-2">
                     <input

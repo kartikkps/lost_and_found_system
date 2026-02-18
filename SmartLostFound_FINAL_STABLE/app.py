@@ -59,6 +59,13 @@ class Item(db.Model):
             'date': 'Recently' # Placeholder as date isn't in model yet
         }
 
+class Message(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    room = db.Column(db.String(50), nullable=False)
+    user = db.Column(db.String(100), nullable=False)
+    text = db.Column(db.Text, nullable=False)
+    timestamp = db.Column(db.String(50), nullable=False)
+
 # ---------------- API ROUTES ----------------
 
 @app.route('/api/register', methods=["POST"])
@@ -171,23 +178,39 @@ def handle_items():
         
         return jsonify({"message": "Item posted successfully", "item": item.to_dict()}), 201
 
+# Endpoint to get single item details
 @app.route('/api/items/<int:id>', methods=["GET"])
 def get_item_detail(id):
     item = Item.query.get_or_404(id)
     return jsonify({"item": item.to_dict()})
 
 
+# ---------------- SOCKET.IO EVENTS ----------------
 @socketio.on('join')
 def on_join(data):
     username = data.get('username')
     item_id = data.get('item_id')
     room = item_id
     join_room(room)
-    # emit('message', {'user': 'System', 'text': f'{username} has entered the chat.'}, room=room)
+    
+    # Load previous messages
+    messages = Message.query.filter_by(room=room).order_by(Message.id).all()
+    history = [{"user": m.user, "text": m.text, "timestamp": m.timestamp} for m in messages]
+    
+    emit('history', history)
 
 @socketio.on('message')
 def handle_message(data):
     room = data.get('room')
+    user = data.get('user')
+    text = data.get('text')
+    timestamp = data.get('timestamp')
+    
+    # Save to database
+    msg = Message(room=room, user=user, text=text, timestamp=timestamp)
+    db.session.add(msg)
+    db.session.commit()
+    
     emit('message', data, room=room)
 
 if __name__ == "__main__":
