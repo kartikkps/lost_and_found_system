@@ -1,4 +1,6 @@
-flask
-flask_sqlalchemy
-werkzeug
-flask-cors
+Flask
+Flask-SQLAlchemy
+Werkzeug
+Flask-Cors
+flask-socketio
+eventlet
