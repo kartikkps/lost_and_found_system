@@ -3,7 +3,7 @@ import Navbar from '../components/Navbar';
 import { useAuth } from '../context/AuthContext';
 import { itemService } from '../services/api';
 import { Link } from 'react-router-dom';
-import { PlusCircle, Clock, CheckCircle, AlertCircle } from 'lucide-react';
+import { PlusCircle, Clock, CheckCircle, AlertCircle, Trash2 } from 'lucide-react';
 
 const Dashboard = () => {
     const { user } = useAuth();
@@ -14,7 +14,7 @@ const Dashboard = () => {
     useEffect(() => {
         const fetchItems = async () => {
             try {
-                
+
                 const response = await itemService.getUserItems();
                 setItems(response.data);
             } catch (err) {
@@ -27,6 +27,19 @@ const Dashboard = () => {
 
         fetchItems();
     }, [user]);
+
+    const handleDelete = async (id) => {
+        if (window.confirm("Are you sure you want to delete this report? This action cannot be undone.")) {
+            try {
+                await itemService.deleteItem(id);
+                // Remove item from state
+                setItems(items.filter(item => item.id !== id));
+            } catch (err) {
+                console.error("Failed to delete item", err);
+                alert("Failed to delete item. Please try again.");
+            }
+        }
+    };
 
     return (
         <div className="min-h-screen bg-gray-50">
@@ -50,7 +63,7 @@ const Dashboard = () => {
                     </div>
                 </div>
 
-                {}
+                { }
                 {error && (
                     <div className="rounded-md bg-red-50 p-4 mb-6">
                         <div className="flex">
@@ -105,6 +118,16 @@ const Dashboard = () => {
                                                     <p>
                                                         Reported on <time dateTime={item.date}>{item.date}</time>
                                                     </p>
+                                                    <button
+                                                        onClick={(e) => {
+                                                            e.preventDefault(); // Prevent link navigation
+                                                            handleDelete(item.id);
+                                                        }}
+                                                        className="ml-4 text-red-600 hover:text-red-900 flex items-center gap-1"
+                                                    >
+                                                        <Trash2 size={16} />
+                                                        Delete
+                                                    </button>
                                                 </div>
                                             </div>
                                         </div>

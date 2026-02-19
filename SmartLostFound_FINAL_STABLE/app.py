@@ -382,10 +382,33 @@ def handle_items():
         return jsonify({"message": "Item posted successfully", "item": item.to_dict()}), 201
 
 # Endpoint to get single item details
-@app.route('/api/items/<int:id>', methods=["GET"])
-def get_item_detail(id):
+@app.route('/api/items/<int:id>', methods=["GET", "DELETE"])
+def handle_item_detail(id):
     item = Item.query.get_or_404(id)
-    return jsonify({"item": item.to_dict()})
+
+    if request.method == "GET":
+        return jsonify({"item": item.to_dict()})
+
+    if request.method == "DELETE":
+        if "user_id" not in session:
+            return jsonify({"error": "Not authenticated"}), 401
+        
+        # Verify ownership
+        if item.user_id != session["user_id"]:
+            return jsonify({"error": "Unauthorized"}), 403
+
+        # Optional: Delete image file if it exists
+        if item.image:
+            image_path = os.path.join(app.config['UPLOAD_FOLDER'], item.image)
+            if os.path.exists(image_path):
+                try:
+                    os.remove(image_path)
+                except Exception as e:
+                    print(f"Error deleting image: {e}")
+
+        db.session.delete(item)
+        db.session.commit()
+        return jsonify({"message": "Item deleted successfully"}), 200
 
 
 

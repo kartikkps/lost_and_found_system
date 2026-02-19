@@ -116,9 +116,13 @@ export const itemService = {
         return { data: { id, ...itemData } };
     },
     deleteItem: async (id) => {
-
-        console.warn("Delete Item not yet implemented on backend");
-        return { data: { success: true } };
+        try {
+            const response = await api.delete(`/items/${id}`);
+            return response.data;
+        } catch (error) {
+            console.error("API Error:", error);
+            throw error;
+        }
     },
     getChats: async () => {
         try {
