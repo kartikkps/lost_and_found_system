@@ -3,11 +3,13 @@ import { useParams, useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import { MapPin, Calendar, Camera, ArrowLeft, MessageCircle, AlertCircle } from 'lucide-react';
 import { itemService, API_BASE_URL } from '../services/api';
+import { useAuth } from '../context/AuthContext';
 import ChatWindow from '../components/ChatWindow';
 
 const ItemDetails = () => {
     const { id } = useParams();
     const navigate = useNavigate();
+    const { user } = useAuth(); // Get current user
     const [item, setItem] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -48,6 +50,8 @@ const ItemDetails = () => {
     );
     if (!item) return <div className="text-center py-20">Item not found</div>;
 
+    const isOwner = user && item.user_id === user.id;
+
     return (
         <div className="min-h-screen bg-gray-50 pb-12">
             <Navbar />
@@ -81,7 +85,7 @@ const ItemDetails = () => {
                             <h1 className="text-3xl font-bold text-gray-900">{item.title}</h1>
                             <span className="flex items-center text-sm text-gray-500 mt-2 md:mt-0">
                                 <Calendar className="flex-shrink-0 mr-1.5 h-4 w-4 text-gray-400" />
-                                Reported on {item.date}
+                                Posted on {new Date(item.date).toLocaleString([], { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
                             </span>
                         </div>
                         <div className="mt-2 flex items-center text-sm text-gray-500">
@@ -105,19 +109,24 @@ const ItemDetails = () => {
                                     <p className="text-xs text-gray-400 mt-1">{item.contact}</p>
                                 </div>
                                 <div className="flex space-x-2">
-                                    <a
-                                        href={item.contact.includes('@') ? `mailto:${item.contact}` : `tel:${item.contact}`}
-                                        className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand"
-                                    >
-                                        Contact
-                                    </a>
-                                    <button
-                                        onClick={() => setShowChat(!showChat)}
-                                        className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-brand-foreground bg-brand hover:bg-brand-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand"
-                                    >
-                                        <MessageCircle className="h-5 w-5 mr-2" />
-                                        Chat
-                                    </button>
+                                    {!isOwner && (
+                                        <a
+                                            href={item.contact.includes('@') ? `mailto:${item.contact}` : `tel:${item.contact}`}
+                                            className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand"
+                                        >
+                                            Contact
+                                        </a>
+                                    )}
+
+                                    {!isOwner && (
+                                        <button
+                                            onClick={() => setShowChat(!showChat)}
+                                            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-brand-foreground bg-brand hover:bg-brand-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand"
+                                        >
+                                            <MessageCircle className="h-5 w-5 mr-2" />
+                                            Chat
+                                        </button>
+                                    )}
                                 </div>
                             </div>
                             <p className="mt-4 text-xs text-gray-400 text-center">
@@ -127,9 +136,9 @@ const ItemDetails = () => {
                     </div>
                 </div>
             </div>
-            {showChat && (
+            {showChat && !isOwner && (
                 <ChatWindow
-                    itemId={id}
+                    roomId={`item-${id}-${user.id}`}
                     itemName={item.title}
                     onClose={() => setShowChat(false)}
                 />

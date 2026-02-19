@@ -10,6 +10,8 @@ import Dashboard from './pages/Dashboard';
 import BrowseItems from './pages/BrowseItems';
 import ReportItem from './pages/ReportItem';
 import ItemDetails from './pages/ItemDetails';
+import ChatList from './pages/ChatList';
+import Profile from './pages/Profile';
 
 import ProtectedRoute from './components/ProtectedRoute';
 
@@ -24,10 +26,12 @@ function App() {
           <Route path="/browse" element={<BrowseItems />} />
           <Route path="/items/:id" element={<ItemDetails />} />
 
-          {}
+          { }
           <Route element={<ProtectedRoute />}>
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/report" element={<ReportItem />} />
+            <Route path="/chats" element={<ChatList />} />
+            <Route path="/profile" element={<Profile />} />
           </Route>
 
           <Route path="*" element={<Navigate to="/" replace />} />

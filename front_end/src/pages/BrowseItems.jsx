@@ -7,7 +7,7 @@ import { itemService, API_BASE_URL } from '../services/api';
 const BrowseItems = () => {
     const [items, setItems] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [filter, setFilter] = useState('all'); 
+    const [filter, setFilter] = useState('all');
     const [searchTerm, setSearchTerm] = useState('');
     const [error, setError] = useState(null);
 
@@ -32,7 +32,7 @@ const BrowseItems = () => {
     const getImageUrl = (imagePath) => {
         if (!imagePath) return null;
         if (imagePath.startsWith('http')) return imagePath;
-        
+
         const baseUrl = API_BASE_URL.replace('/api', '');
         return `${baseUrl}/${imagePath}`;
     };
@@ -137,7 +137,7 @@ const BrowseItems = () => {
                                         </div>
                                         <div className="mt-2 flex items-center text-sm text-gray-500">
                                             <Calendar className="flex-shrink-0 mr-1.5 h-4 w-4 text-gray-400" />
-                                            <span>{item.date}</span>
+                                            <span>{new Date(item.date).toLocaleString([], { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
                                         </div>
                                     </div>
                                 </div>

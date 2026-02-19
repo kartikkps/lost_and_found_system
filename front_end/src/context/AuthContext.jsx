@@ -15,10 +15,10 @@ export const AuthProvider = ({ children }) => {
                 const response = await authService.getCurrentUser();
                 if (response.data.user) {
                     setUser(response.data.user);
-                    localStorage.setItem('user', JSON.stringify(response.data.user)); 
+                    localStorage.setItem('user', JSON.stringify(response.data.user));
                 }
             } catch (error) {
-                
+
                 setUser(null);
                 localStorage.removeItem('user');
             } finally {
@@ -40,7 +40,7 @@ export const AuthProvider = ({ children }) => {
             console.error("Login error:", error);
             return {
                 success: false,
-                message: error.response?.data?.error || 'Login failed' 
+                message: error.response?.data?.error || 'Login failed'
             };
         }
     };
@@ -48,7 +48,7 @@ export const AuthProvider = ({ children }) => {
     const register = async (userData) => {
         try {
             const response = await authService.register(userData);
-          
+
             return { success: true };
         } catch (error) {
             console.error("Registration error:", error);
@@ -64,14 +64,19 @@ export const AuthProvider = ({ children }) => {
             await authService.logout();
             setUser(null);
             localStorage.removeItem('user');
-            window.location.href = '/'; 
+            window.location.href = '/';
         } catch (error) {
             console.error("Logout failed", error);
-            
+
             setUser(null);
             localStorage.removeItem('user');
             window.location.href = '/';
         }
+    };
+
+    const updateUser = (userData) => {
+        setUser(userData);
+        localStorage.setItem('user', JSON.stringify(userData));
     };
 
     const value = {
@@ -79,7 +84,8 @@ export const AuthProvider = ({ children }) => {
         loading,
         login,
         register,
-        logout
+        logout,
+        updateUser
     };
 
     return (

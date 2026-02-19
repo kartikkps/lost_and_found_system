@@ -11,7 +11,7 @@ const ReportItem = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [formData, setFormData] = useState({
-        type: 'lost', 
+        type: 'lost',
         title: '',
         description: '',
         category: 'electronics',
@@ -21,10 +21,10 @@ const ReportItem = () => {
         image: null
     });
 
-    
+
     useEffect(() => {
         if (!user) {
-            
+
         }
     }, [user, navigate]);
 
@@ -52,7 +52,7 @@ const ReportItem = () => {
                 }
             });
 
-            
+
             await itemService.createItem(data);
             navigate('/dashboard');
 
@@ -90,7 +90,7 @@ const ReportItem = () => {
                             </div>
                         )}
 
-                        {}
+                        { }
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-3">What are you reporting?</label>
                             <div className="grid grid-cols-2 gap-4">
@@ -115,7 +115,7 @@ const ReportItem = () => {
                             </div>
                         </div>
 
-                        {}
+                        { }
                         <div className="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
                             <div className="sm:col-span-4">
                                 <label htmlFor="title" className="block text-sm font-medium text-gray-700">
@@ -226,6 +226,7 @@ const ReportItem = () => {
                                     name="date"
                                     id="date"
                                     required
+                                    max={new Date().toISOString().split("T")[0]}
                                     value={formData.date}
                                     onChange={handleChange}
                                     className="focus:ring-brand focus:border-brand block w-full pl-10 sm:text-sm border-gray-300 rounded-md py-2 px-3 border"

@@ -1,13 +1,19 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { io } from 'socket.io-client';
 import { useAuth } from '../context/AuthContext';
-import { X, Send, MessageCircle } from 'lucide-react';
+import { X, Send, MessageCircle, Check, CheckCheck } from 'lucide-react';
 import { API_BASE_URL } from '../services/api';
 
 
-const SOCKET_URL = 'http://127.0.0.1:5000';
 
-const ChatWindow = ({ itemId, itemName, onClose }) => {
+const getSocketUrl = () => {
+    const hostname = window.location.hostname;
+    return `http://${hostname}:5000`;
+};
+
+const SOCKET_URL = getSocketUrl();
+
+const ChatWindow = ({ roomId, itemName, onClose }) => {
     const { user } = useAuth();
     const [messages, setMessages] = useState([]);
     const [newMessage, setNewMessage] = useState('');
@@ -22,7 +28,7 @@ const ChatWindow = ({ itemId, itemName, onClose }) => {
 
         socketRef.current.emit('join', {
             username: user.username,
-            item_id: itemId
+            room: roomId
         });
 
         socketRef.current.on('history', (history) => {
@@ -37,7 +43,7 @@ const ChatWindow = ({ itemId, itemName, onClose }) => {
                 socketRef.current.disconnect();
             }
         };
-    }, [itemId, user]);
+    }, [roomId, user]);
 
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -48,7 +54,8 @@ const ChatWindow = ({ itemId, itemName, onClose }) => {
         if (!newMessage.trim()) return;
 
         const messageData = {
-            room: itemId,
+            room: roomId,
+            sender_id: user.id, // Send user ID
             user: user.username,
             text: newMessage.trim(),
             timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
@@ -58,7 +65,7 @@ const ChatWindow = ({ itemId, itemName, onClose }) => {
     };
 
     return (
-        <div className="fixed bottom-4 right-4 w-80 md:w-96 bg-white rounded-lg shadow-2xl overflow-hidden border border-gray-200 z-50 flex flex-col h-[500px]">
+        <div className="fixed bottom-0 right-0 w-full h-[80vh] md:bottom-4 md:right-4 md:w-96 md:h-[500px] bg-white md:rounded-lg rounded-t-lg shadow-2xl overflow-hidden border border-gray-200 z-50 flex flex-col">
             { }
             <div className="bg-brand p-4 flex justify-between items-center text-brand-foreground">
                 <div className="flex items-center">
@@ -83,7 +90,7 @@ const ChatWindow = ({ itemId, itemName, onClose }) => {
                 ) : (
                     <div className="space-y-3">
                         {messages.map((msg, index) => {
-                            const isMe = msg.user === user.username;
+                            const isMe = msg.sender_id === user.id;
                             return (
                                 <div
                                     key={index}
@@ -91,8 +98,8 @@ const ChatWindow = ({ itemId, itemName, onClose }) => {
                                 >
                                     <div
                                         className={`max-w-[80%] px-4 py-2 rounded-lg text-sm ${isMe
-                                            ? 'bg-brand text-brand-foreground rounded-br-none'
-                                            : 'bg-white border border-gray-200 text-gray-800 rounded-bl-none shadow-sm'
+                                            ? 'bg-brand text-brand-foreground rounded-br-none shadow-md'
+                                            : 'bg-gray-100 border border-gray-300 text-gray-900 rounded-bl-none shadow-sm'
                                             }`}
                                     >
                                         <p className="font-bold text-xs opacity-75 mb-1">{msg.user}</p>
